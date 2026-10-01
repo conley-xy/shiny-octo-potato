@@ -1,0 +1,512 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>六爻排盘 · 随机起卦与卦名</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+    }
+
+    body {
+      background: #f3f5f9;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 1.5rem;
+    }
+
+    .container {
+      max-width: 1100px;
+      width: 100%;
+      background: white;
+      border-radius: 2.5rem;
+      box-shadow: 0 20px 40px -10px rgba(0, 20, 30, 0.2);
+      padding: 2rem 2rem 1.8rem;
+    }
+
+    h2 {
+      text-align: center;
+      font-weight: 500;
+      font-size: 1.7rem;
+      letter-spacing: 1px;
+      color: #1e2b3c;
+      margin-top: 0.2rem;
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid #dce2ec;
+      padding-bottom: 0.8rem;
+    }
+
+    .row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.8rem;
+      margin-bottom: 0.7rem;
+      flex-wrap: nowrap;
+    }
+
+    .display-box {
+      flex: 1;
+      min-width: 0;
+      background: #f8fafd;
+      border: 2px solid #cbd5e1;
+      border-radius: 1.2rem;
+      height: 3.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #0b1e2e;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+      transition: all 0.1s;
+      font-family: 'Courier New', monospace;
+    }
+
+    .display-box.result-box {
+      background: #eef6ff;
+      border-color: #6a9eff;
+      color: #0f3b7a;
+      font-weight: 700;
+      font-size: 1.8rem;
+    }
+
+    .btn {
+      flex: 0 0 auto;
+      background: #1e3b5c;
+      border: none;
+      color: white;
+      font-size: 1.2rem;
+      font-weight: 500;
+      padding: 0 1.6rem;
+      height: 3.2rem;
+      border-radius: 2rem;
+      cursor: pointer;
+      box-shadow: 0 6px 0 #0b1a2b, 0 5px 12px rgba(0,0,0,0.15);
+      transition: all 0.08s ease;
+      letter-spacing: 0.3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+      white-space: nowrap;
+    }
+
+    .btn:active {
+      transform: translateY(4px);
+      box-shadow: 0 2px 0 #0b1a2b, 0 5px 10px rgba(0,0,0,0.1);
+    }
+
+    .time-row {
+      margin-top: 1.8rem;
+      background: #e9edf4;
+      border-radius: 2.5rem;
+      padding: 0.8rem 1.6rem;
+      display: flex;
+      align-items: center;
+      gap: 1.2rem;
+      flex-wrap: wrap;
+    }
+
+    .time-label {
+      font-weight: 600;
+      color: #1e3b5c;
+      font-size: 1.1rem;
+      letter-spacing: 0.5px;
+      background: #d0dae8;
+      padding: 0.4rem 1.2rem;
+      border-radius: 2rem;
+      white-space: nowrap;
+    }
+
+    .time-display {
+      font-family: 'Courier New', monospace;
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: #102a41;
+      background: white;
+      padding: 0.4rem 1.6rem;
+      border-radius: 2rem;
+      box-shadow: inset 0 2px 6px rgba(0,0,0,0.02);
+      flex: 1;
+      min-width: 200px;
+      border: 1px solid #bcc9db;
+      letter-spacing: 0.5px;
+    }
+
+    /* 新增：卦名和动爻信息样式 */
+    .gua-row {
+      margin-top: 1.2rem;
+      background: #f0f4fb;
+      border-radius: 2.5rem;
+      padding: 0.8rem 1.6rem;
+      display: flex;
+      align-items: center;
+      gap: 1.2rem;
+      flex-wrap: wrap;
+      border: 1px solid #d0dded;
+    }
+
+    .gua-label {
+      font-weight: 600;
+      color: #1e3b5c;
+      font-size: 1.1rem;
+      letter-spacing: 0.5px;
+      background: #d0dae8;
+      padding: 0.4rem 1.2rem;
+      border-radius: 2rem;
+      white-space: nowrap;
+    }
+
+    .gua-display {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #0f3b7a;
+      background: white;
+      padding: 0.3rem 1.8rem;
+      border-radius: 2rem;
+      box-shadow: inset 0 2px 6px rgba(0,0,0,0.02);
+      border: 1px solid #bcc9db;
+      letter-spacing: 1px;
+      flex: 1;
+      min-width: 150px;
+      font-family: 'Courier New', monospace;
+    }
+
+    .dongyao-row {
+      margin-top: 0.8rem;
+      background: #fdf3e8;
+      border-radius: 2.5rem;
+      padding: 0.8rem 1.6rem;
+      display: flex;
+      align-items: center;
+      gap: 1.2rem;
+      flex-wrap: wrap;
+      border: 1px solid #f0d9c0;
+    }
+
+    .dongyao-label {
+      font-weight: 600;
+      color: #7a4d1e;
+      font-size: 1.1rem;
+      letter-spacing: 0.5px;
+      background: #f3e0cc;
+      padding: 0.4rem 1.2rem;
+      border-radius: 2rem;
+      white-space: nowrap;
+    }
+
+    .dongyao-display {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #5e3a12;
+      background: white;
+      padding: 0.3rem 1.8rem;
+      border-radius: 2rem;
+      box-shadow: inset 0 2px 6px rgba(0,0,0,0.02);
+      border: 1px solid #e0c9ae;
+      letter-spacing: 0.5px;
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .footnote {
+      text-align: right;
+      font-size: 0.8rem;
+      color: #7a8b9f;
+      margin-top: 0.5rem;
+      padding-right: 0.4rem;
+    }
+
+    @media (max-width: 700px) {
+      .container {
+        padding: 1.2rem;
+      }
+      .display-box {
+        height: 2.8rem;
+        font-size: 1.2rem;
+      }
+      .btn {
+        font-size: 1rem;
+        padding: 0 1rem;
+        height: 2.8rem;
+      }
+      .display-box.result-box {
+        font-size: 1.5rem;
+      }
+      .time-display {
+        font-size: 1.1rem;
+      }
+      .gua-display {
+        font-size: 1.2rem;
+        padding: 0.2rem 1rem;
+      }
+      .dongyao-display {
+        font-size: 1rem;
+        padding: 0.2rem 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h2>⚡ 六爻 · 随机起卦</h2>
+
+  <!-- 六排操作区 -->
+  <div class="row">
+    <div class="display-box" id="r1c1">-</div>
+    <div class="display-box" id="r1c2">-</div>
+    <div class="display-box" id="r1c3">-</div>
+    <div class="display-box result-box" id="r1res">-</div>
+    <button class="btn" data-row="1">起卦</button>
+  </div>
+  <div class="row">
+    <div class="display-box" id="r2c1">-</div>
+    <div class="display-box" id="r2c2">-</div>
+    <div class="display-box" id="r2c3">-</div>
+    <div class="display-box result-box" id="r2res">-</div>
+    <button class="btn" data-row="2">起卦</button>
+  </div>
+  <div class="row">
+    <div class="display-box" id="r3c1">-</div>
+    <div class="display-box" id="r3c2">-</div>
+    <div class="display-box" id="r3c3">-</div>
+    <div class="display-box result-box" id="r3res">-</div>
+    <button class="btn" data-row="3">起卦</button>
+  </div>
+  <div class="row">
+    <div class="display-box" id="r4c1">-</div>
+    <div class="display-box" id="r4c2">-</div>
+    <div class="display-box" id="r4c3">-</div>
+    <div class="display-box result-box" id="r4res">-</div>
+    <button class="btn" data-row="4">起卦</button>
+  </div>
+  <div class="row">
+    <div class="display-box" id="r5c1">-</div>
+    <div class="display-box" id="r5c2">-</div>
+    <div class="display-box" id="r5c3">-</div>
+    <div class="display-box result-box" id="r5res">-</div>
+    <button class="btn" data-row="5">起卦</button>
+  </div>
+  <div class="row">
+    <div class="display-box" id="r6c1">-</div>
+    <div class="display-box" id="r6c2">-</div>
+    <div class="display-box" id="r6c3">-</div>
+    <div class="display-box result-box" id="r6res">-</div>
+    <button class="btn" data-row="6">起卦</button>
+  </div>
+
+  <!-- 第七排：时间显示 -->
+  <div class="time-row">
+    <span class="time-label">🕒 最近起卦时间</span>
+    <div class="time-display" id="timeDisplay">— — — 尚未起卦 — — —</div>
+  </div>
+
+  <!-- 新增：卦名显示 -->
+  <div class="gua-row">
+    <span class="gua-label">📜 本卦</span>
+    <div class="gua-display" id="guaName">等待起卦…</div>
+  </div>
+
+  <!-- 新增：动爻信息显示 -->
+  <div class="dongyao-row">
+    <span class="dongyao-label">🔥 动爻</span>
+    <div class="dongyao-display" id="dongyaoInfo">等待起卦…</div>
+  </div>
+
+  <div class="footnote">点击任意一排的“起卦”按钮，记录时间并生成卦象</div>
+</div>
+
+<script>
+  (function() {
+    // ========== 六十四卦查表数据 ==========
+    // 索引 0-63，索引 = (上卦索引 * 8 + 下卦索引)
+    // 八卦顺序：乾(111), 兑(110), 离(101), 震(100), 巽(011), 坎(010), 艮(001), 坤(000)
+    // 使用二进制字符串查找更方便：直接按键 "111110" 查
+    const guaTable = {
+      // 乾宫（上卦为乾111）
+      "111111": "乾为天", "111110": "天泽履", "111101": "天火同人", "111100": "天雷无妄",
+      "111011": "天风姤", "111010": "天水讼", "111001": "天山遁", "111000": "天地否",
+      // 兑宫（上卦为兑110）
+      "110111": "泽天夬", "110110": "兑为泽", "110101": "泽火革", "110100": "泽雷随",
+      "110011": "泽风大过", "110010": "泽水困", "110001": "泽山咸", "110000": "泽地萃",
+      // 离宫（上卦为离101）
+      "101111": "火天大有", "101110": "火泽睽", "101101": "离为火", "101100": "火雷噬嗑",
+      "101011": "火风鼎", "101010": "火水未济", "101001": "火山旅", "101000": "火地晋",
+      // 震宫（上卦为震100）
+      "100111": "雷天大壮", "100110": "雷泽归妹", "100101": "雷火丰", "100100": "震为雷",
+      "100011": "雷风恒", "100010": "雷水解", "100001": "雷山小过", "100000": "雷地豫",
+      // 巽宫（上卦为巽011）
+      "011111": "风天小畜", "011110": "风泽中孚", "011101": "风火家人", "011100": "风雷益",
+      "011011": "巽为风", "011010": "风水涣", "011001": "风山渐", "011000": "风地观",
+      // 坎宫（上卦为坎010）
+      "010111": "水天需", "010110": "水泽节", "010101": "水火既济", "010100": "水雷屯",
+      "010011": "水风井", "010010": "坎为水", "010001": "水山蹇", "010000": "水地比",
+      // 艮宫（上卦为艮001）
+      "001111": "山天大畜", "001110": "山泽损", "001101": "山火贲", "001100": "山雷颐",
+      "001011": "山风蛊", "001010": "山水蒙", "001001": "艮为山", "001000": "山地剥",
+      // 坤宫（上卦为坤000）
+      "000111": "地天泰", "000110": "地泽临", "000101": "地火明夷", "000100": "地雷复",
+      "000011": "地风升", "000010": "地水师", "000001": "地山谦", "000000": "坤为地"
+    };
+
+    // 每个卦对应的二进制字符串（上卦在下卦前面，即上卦在前）
+    // 我们的 yaoValues 数组顺序是：第1爻（初爻）~ 第6爻（上爻）
+    // 下卦 = 第1,2,3爻；上卦 = 第4,5,6爻
+    // 二进制字符串 = 上卦的3位 + 下卦的3位，其中阳爻(7/9)=1，阴爻(6/8)=0
+
+    // 各爻名称（用于动爻显示）
+    const yaoNames = ["初爻", "二爻", "三爻", "四爻", "五爻", "上爻"];
+
+    // 存储每一爻的结果（6-9），初始为 null
+    let yaoValues = [null, null, null, null, null, null];
+
+    // ========== 工具函数 ==========
+
+    // 根据三个0/1计算6-9
+    function calcResult(a, b, c) {
+      const sum = a + b + c;
+      if (sum === 0) return 6;
+      if (sum === 1) return 8;
+      if (sum === 2) return 7;
+      return 9;
+    }
+
+    function randomBit() {
+      return Math.random() < 0.5 ? 0 : 1;
+    }
+
+    // 刷新指定行的显示
+    function refreshRow(rowNumber) {
+      const v1 = randomBit();
+      const v2 = randomBit();
+      const v3 = randomBit();
+      const result = calcResult(v1, v2, v3);
+
+      document.getElementById(`r${rowNumber}c1`).textContent = v1;
+      document.getElementById(`r${rowNumber}c2`).textContent = v2;
+      document.getElementById(`r${rowNumber}c3`).textContent = v3;
+      document.getElementById(`r${rowNumber}res`).textContent = result;
+
+      // 存储该爻的结果（数组索引从0开始，rowNumber从1开始）
+      yaoValues[rowNumber - 1] = result;
+
+      // 更新卦名和动爻
+      updateGuaInfo();
+    }
+
+    // 将 6-9 转换为阴阳（用于二进制字符串）
+    // 规则：7,9 为阳(1)；6,8 为阴(0)
+    function isYang(value) {
+      return value === 7 || value === 9;
+    }
+
+    // 获取某一爻的阴阳标记
+    function getYinYang(value) {
+      if (value === null) return '?';
+      return isYang(value) ? '阳' : '阴';
+    }
+
+    // 根据 yaoValues 计算卦名和动爻
+    function updateGuaInfo() {
+      // 检查是否所有六爻都已起卦
+      if (yaoValues.some(v => v === null)) {
+        document.getElementById('guaName').textContent = '等待全部六爻起卦…';
+        document.getElementById('dongyaoInfo').textContent = '等待全部六爻起卦…';
+        return;
+      }
+
+      // 构建二进制字符串：上卦在前，下卦在后
+      // 下卦 = 第1,2,3爻（索引0,1,2）；上卦 = 第4,5,6爻（索引3,4,5）
+      let lowerBits = '';
+      for (let i = 0; i < 3; i++) {
+        lowerBits += isYang(yaoValues[i]) ? '1' : '0';
+      }
+      let upperBits = '';
+      for (let i = 3; i < 6; i++) {
+        upperBits += isYang(yaoValues[i]) ? '1' : '0';
+      }
+      const key = upperBits + lowerBits;
+
+      // 查表获取卦名
+      const guaName = guaTable[key] || '未知卦';
+
+      // 计算动爻：老阴(6)和老阳(9)为动爻
+      const movingYao = [];
+      for (let i = 0; i < 6; i++) {
+        const val = yaoValues[i];
+        if (val === 6 || val === 9) {
+          movingYao.push(i);
+        }
+      }
+
+      // 更新显示
+      document.getElementById('guaName').textContent = `${guaName}`;
+
+      if (movingYao.length === 0) {
+        document.getElementById('dongyaoInfo').textContent = '六爻安静，无动爻（静卦）';
+      } else {
+        const names = movingYao.map(i => `${yaoNames[i]}（${yaoValues[i] === 9 ? '老阳' : '老阴'}）`);
+        document.getElementById('dongyaoInfo').textContent = `动爻：${names.join('、')}，共 ${movingYao.length} 爻动`;
+      }
+    }
+
+    // 获取当前时间字符串
+    function getCurrentTimeString() {
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const seconds = String(now.getSeconds()).padStart(2, '0');
+      return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+    }
+
+    function updateTimestamp() {
+      document.getElementById('timeDisplay').textContent = getCurrentTimeString();
+    }
+
+    // 初始化占位符
+    function initPlaceholders() {
+      for (let row = 1; row <= 6; row++) {
+        for (let col = 1; col <= 3; col++) {
+          const el = document.getElementById(`r${row}c${col}`);
+          if (el) el.textContent = '–';
+        }
+        const resEl = document.getElementById(`r${row}res`);
+        if (resEl) resEl.textContent = '–';
+      }
+    }
+
+    // ========== 事件绑定 ==========
+    document.querySelector('.container').addEventListener('click', (e) => {
+      const btn = e.target.closest('.btn');
+      if (!btn) return;
+
+      const rowAttr = btn.getAttribute('data-row');
+      if (!rowAttr) return;
+
+      const rowNumber = parseInt(rowAttr, 10);
+      if (rowNumber >= 1 && rowNumber <= 6) {
+        refreshRow(rowNumber);
+        updateTimestamp();
+      }
+    });
+
+    // 页面加载初始化
+    window.addEventListener('DOMContentLoaded', () => {
+      initPlaceholders();
+      // 初始状态卦名和动爻提示
+      document.getElementById('guaName').textContent = '等待全部六爻起卦…';
+      document.getElementById('dongyaoInfo').textContent = '等待全部六爻起卦…';
+    });
+  })();
+</script>
+</body>
+</html>
